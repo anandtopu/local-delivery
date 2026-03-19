@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: local-delivery-staging
+
+resources:
+  - ../../base
+
+namePrefix: staging-
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+    target:
+      kind: Deployment
+      name: backend
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+    target:
+      kind: Deployment
+      name: frontend
+
+configMapGenerator:
+  - name: local-delivery-config
+    behavior: merge
+    literals:
+      - APP_ENV=staging
+      - LOG_LEVEL=INFO
+      - CORS_ORIGINS=https://staging.delivery.example.com

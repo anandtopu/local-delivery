@@ -1,0 +1,31 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: local-delivery
+
+resources:
+  - ../../base
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+    target:
+      kind: Deployment
+      name: backend
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 2
+    target:
+      kind: Deployment
+      name: frontend
+
+configMapGenerator:
+  - name: local-delivery-config
+    behavior: merge
+    literals:
+      - APP_ENV=prod
+      - LOG_LEVEL=ERROR
+      - CORS_ORIGINS=https://delivery.example.com
