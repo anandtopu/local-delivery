@@ -24,10 +24,15 @@ patches:
       kind: Deployment
       name: frontend
 
-configMapGenerator:
-  - name: local-delivery-config
-    behavior: merge
-    literals:
-      - APP_ENV=dev
-      - LOG_LEVEL=DEBUG
-      - CORS_ORIGINS=http://localhost:3000
+  - patch: |-
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: local-delivery-config
+      data:
+        APP_ENV: dev
+        LOG_LEVEL: DEBUG
+        CORS_ORIGINS: http://localhost:3000
+    target:
+      kind: ConfigMap
+      name: local-delivery-config
