@@ -16,7 +16,7 @@ FastAPI Backend (backend:8000)
 │  Redis  (availability cache)   │
 └────────────────────────────────┘
 ```
-
+ 
 ---
 
 ## Tech Stack
