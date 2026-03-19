@@ -4,7 +4,7 @@ import {
   AvailabilityResponse,
   checkAvailability,
 } from "../services/availabilityService";
-import { formatDistance, formatPrice, formatTravelTime } from "../utils/formatters";
+import { formatDistance, formatTravelTime } from "../utils/formatters";
 
 const DEFAULT_ITEMS = "1,2,3";
 

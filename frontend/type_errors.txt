@@ -1,0 +1,5 @@
+
+> local-delivery-frontend@1.0.0 type-check
+> tsc --noEmit
+
+src/services/api.ts(4,24): error TS2339: Property 'env' does not exist on type 'ImportMeta'.

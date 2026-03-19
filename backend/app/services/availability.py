@@ -32,9 +32,7 @@ async def check_availability(
         return [], "MISS"
 
     # Batch-fetch all requested item metadata (active only)
-    items_result = await read_db.execute(
-        select(Item).where(Item.id.in_(item_ids), Item.is_active)
-    )
+    items_result = await read_db.execute(select(Item).where(Item.id.in_(item_ids), Item.is_active))
     items_map: dict[int, Item] = {item.id: item for item in items_result.scalars().all()}
 
     results: list[AvailabilityResult] = []

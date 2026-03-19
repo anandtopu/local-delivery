@@ -52,9 +52,7 @@ async def get_stats(read_db: AsyncSession = Depends(get_read_db)):
     )
     total_dcs = total_dcs_result.scalar_one() or 0
 
-    total_items_result = await read_db.execute(
-        select(func.count(Item.id)).where(Item.is_active)
-    )
+    total_items_result = await read_db.execute(select(func.count(Item.id)).where(Item.is_active))
     total_items = total_items_result.scalar_one() or 0
 
     total_orders_result = await read_db.execute(select(func.count(Order.id)))

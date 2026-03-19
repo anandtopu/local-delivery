@@ -1,0 +1,150 @@
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+  --> app\routers\admin.py:37:9
+   |
+35 |     except Exception as exc:
+36 |         logger.exception("seed failed", error=str(exc))
+37 |         raise HTTPException(status_code=500, detail=str(exc))
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E712 Avoid equality comparisons to `True`; use `DistributionCenter.is_active:` for truth checks
+  --> app\routers\admin.py:51:57
+   |
+49 |     """Return aggregate counts from the database."""
+50 |     total_dcs_result = await read_db.execute(
+51 |         select(func.count(DistributionCenter.id)).where(DistributionCenter.is_active == True)
+   |                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+52 |     )
+53 |     total_dcs = total_dcs_result.scalar_one() or 0
+   |
+help: Replace with `DistributionCenter.is_active`
+
+E712 Avoid equality comparisons to `True`; use `Item.is_active:` for truth checks
+  --> app\routers\admin.py:56:43
+   |
+55 |     total_items_result = await read_db.execute(
+56 |         select(func.count(Item.id)).where(Item.is_active == True)
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^
+57 |     )
+58 |     total_items = total_items_result.scalar_one() or 0
+   |
+help: Replace with `Item.is_active`
+
+E712 Avoid equality comparisons to `True`; use `DistributionCenter.is_active:` for truth checks
+  --> app\routers\admin.py:70:13
+   |
+68 |     regions_result = await read_db.execute(
+69 |         select(func.count(func.distinct(DistributionCenter.region_id))).where(
+70 |             DistributionCenter.is_active == True
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+71 |         )
+72 |     )
+   |
+help: Replace with `DistributionCenter.is_active`
+
+E712 Avoid equality comparisons to `True`; use `Item.is_active:` for truth checks
+  --> app\routers\items.py:20:31
+   |
+18 | ):
+19 |     """List items, optionally filtered by category."""
+20 |     stmt = select(Item).where(Item.is_active == True).offset(skip).limit(limit)
+   |                               ^^^^^^^^^^^^^^^^^^^^^^
+21 |     if category:
+22 |         stmt = stmt.where(Item.category == category)
+   |
+help: Replace with `Item.is_active`
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+  --> app\routers\orders.py:46:9
+   |
+44 |           return order
+45 |       except InsufficientInventoryError as exc:
+46 | /         raise HTTPException(
+47 | |             status_code=409,
+48 | |             detail={
+49 | |                 "error": "insufficient_inventory",
+50 | |                 "item_id": exc.item_id,
+51 | |                 "available": exc.available,
+52 | |                 "requested": exc.requested,
+53 | |             },
+54 | |         )
+   | |_________^
+55 |       except Exception as exc:
+56 |           # asyncpg raises this string in the exception message for serialization failures
+   |
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+  --> app\routers\orders.py:58:13
+   |
+56 |           # asyncpg raises this string in the exception message for serialization failures
+57 |           if "serializ" in str(exc).lower() or "40001" in str(exc):
+58 | /             raise HTTPException(
+59 | |                 status_code=409,
+60 | |                 detail={
+61 | |                     "error": "serialization_failure",
+62 | |                     "message": "Transaction serialization failure, please retry",
+63 | |                 },
+64 | |             )
+   | |_____________^
+65 |           logger.exception("unexpected error placing order", error=str(exc))
+66 |           raise HTTPException(status_code=500, detail="Internal server error")
+   |
+
+B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+  --> app\routers\orders.py:66:9
+   |
+64 |             )
+65 |         logger.exception("unexpected error placing order", error=str(exc))
+66 |         raise HTTPException(status_code=500, detail="Internal server error")
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+E712 Avoid equality comparisons to `True`; use `Item.is_active:` for truth checks
+  --> app\services\availability.py:36:51
+   |
+34 |     # Batch-fetch all requested item metadata (active only)
+35 |     items_result = await read_db.execute(
+36 |         select(Item).where(Item.id.in_(item_ids), Item.is_active == True)
+   |                                                   ^^^^^^^^^^^^^^^^^^^^^^
+37 |     )
+38 |     items_map: dict[int, Item] = {item.id: item for item in items_result.scalars().all()}
+   |
+help: Replace with `Item.is_active`
+
+E712 Avoid equality comparisons to `True`; use `DistributionCenter.is_active:` for truth checks
+  --> app\services\nearby.py:53:13
+   |
+51 |     result = await db.execute(
+52 |         select(DistributionCenter).where(
+53 |             DistributionCenter.is_active == True,
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+54 |             DistributionCenter.lat.between(lat - lat_offset, lat + lat_offset),
+55 |             DistributionCenter.lng.between(lng - lng_offset, lng + lng_offset),
+   |
+help: Replace with `DistributionCenter.is_active`
+
+F841 Local variable `order` is assigned to but never used
+  --> tests\test_orders.py:45:9
+   |
+43 |         inv = _make_inventory(dc_id=1, item_id=10, quantity=50)
+44 |         item = _make_item(item_id=10, price_cents=299)
+45 |         order = _make_order(dc_id=1, customer_id="cust-1", total=299 * 2)
+   |         ^^^^^
+46 |
+47 |         write_db = MagicMock()
+   |
+help: Remove assignment to unused variable `order`
+
+F841 Local variable `result` is assigned to but never used
+  --> tests\test_orders.py:73:13
+   |
+72 |         with patch("app.services.orders.invalidate_dc_item", AsyncMock()):
+73 |             result = await place_order(
+   |             ^^^^^^
+74 |                 write_db=write_db,
+75 |                 redis=redis,
+   |
+help: Remove assignment to unused variable `result`
+
+Found 12 errors.
+No fixes available (8 hidden fixes can be enabled with the `--unsafe-fixes` option).

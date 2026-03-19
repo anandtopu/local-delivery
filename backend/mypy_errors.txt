@@ -1,0 +1,4 @@
+app\core\config.py:42: error: Returning Any from function declared to return "list[str]"  [no-any-return]
+app\services\cache.py:43: error: Returning Any from function declared to return "int"  [no-any-return]
+app\db\redis_client.py:30: error: "Redis[Any]" has no attribute "aclose"; maybe "close"?  [attr-defined]
+Found 3 errors in 3 files (checked 21 source files)
