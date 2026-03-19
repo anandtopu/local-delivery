@@ -75,6 +75,7 @@ jobs:
           READ_DATABASE_URL: postgresql+asyncpg://delivery_user:delivery_pass@localhost:5432/local_delivery_test
           REDIS_URL: redis://localhost:6379/0
           JWT_SECRET_KEY: test-secret-key
+          PYTHONPATH: .
         run: pytest tests/ -v --tb=short
 
   # ── Frontend Tests ───────────────────────────────────────────────────────────
