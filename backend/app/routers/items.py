@@ -17,7 +17,7 @@ async def list_items(
     read_db: AsyncSession = Depends(get_read_db),
 ):
     """List items, optionally filtered by category."""
-    stmt = select(Item).where(Item.is_active == True).offset(skip).limit(limit)
+    stmt = select(Item).where(Item.is_active).offset(skip).limit(limit)
     if category:
         stmt = stmt.where(Item.category == category)
     result = await read_db.execute(stmt)
@@ -43,9 +43,7 @@ async def get_item_inventory(
     read_db: AsyncSession = Depends(get_read_db),
 ):
     """Get inventory levels for an item across all DCs."""
-    result = await read_db.execute(
-        select(Inventory).where(Inventory.item_id == item_id)
-    )
+    result = await read_db.execute(select(Inventory).where(Inventory.item_id == item_id))
     return result.scalars().all()
 
 

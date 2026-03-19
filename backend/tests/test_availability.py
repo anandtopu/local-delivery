@@ -1,11 +1,11 @@
 """
 Tests for the availability cache-aside service.
 """
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.models.schemas import AvailabilityResult
 from app.services.availability import check_availability
 
 
@@ -49,16 +49,23 @@ class TestCheckAvailabilityCacheHit:
 
         redis = MagicMock()
 
-        with patch(
-            "app.services.availability.find_nearby_dcs",
-            AsyncMock(return_value=[_make_entry(dc)]),
-        ), patch(
-            "app.services.availability.get_cached_quantity",
-            AsyncMock(return_value=(50, True)),  # cache HIT
+        with (
+            patch(
+                "app.services.availability.find_nearby_dcs",
+                AsyncMock(return_value=[_make_entry(dc)]),
+            ),
+            patch(
+                "app.services.availability.get_cached_quantity",
+                AsyncMock(return_value=(50, True)),  # cache HIT
+            ),
         ):
             results, status = await check_availability(
-                lat=34.0522, lng=-118.2437, item_ids=[1], radius_km=15.0,
-                read_db=read_db, redis=redis,
+                lat=34.0522,
+                lng=-118.2437,
+                item_ids=[1],
+                radius_km=15.0,
+                read_db=read_db,
+                redis=redis,
             )
 
         assert status == "HIT"
@@ -82,18 +89,24 @@ class TestCheckAvailabilityCacheHit:
         set_cache = AsyncMock()
         redis = MagicMock()
 
-        with patch(
-            "app.services.availability.find_nearby_dcs",
-            AsyncMock(return_value=[_make_entry(dc)]),
-        ), patch(
-            "app.services.availability.get_cached_quantity",
-            AsyncMock(return_value=(None, False)),  # cache MISS
-        ), patch(
-            "app.services.availability.set_cached_quantity", set_cache
+        with (
+            patch(
+                "app.services.availability.find_nearby_dcs",
+                AsyncMock(return_value=[_make_entry(dc)]),
+            ),
+            patch(
+                "app.services.availability.get_cached_quantity",
+                AsyncMock(return_value=(None, False)),  # cache MISS
+            ),
+            patch("app.services.availability.set_cached_quantity", set_cache),
         ):
             results, status = await check_availability(
-                lat=34.0522, lng=-118.2437, item_ids=[1], radius_km=15.0,
-                read_db=read_db, redis=redis,
+                lat=34.0522,
+                lng=-118.2437,
+                item_ids=[1],
+                radius_km=15.0,
+                read_db=read_db,
+                redis=redis,
             )
 
         assert status == "MISS"
@@ -127,17 +140,21 @@ class TestCheckAvailabilityCacheHit:
             call_count += 1
             return (30, True) if hit else (None, False)
 
-        with patch(
-            "app.services.availability.find_nearby_dcs",
-            AsyncMock(return_value=[_make_entry(dc1, 1.0, 1.5), _make_entry(dc2, 5.0, 7.5)]),
-        ), patch(
-            "app.services.availability.get_cached_quantity", mock_get_cached
-        ), patch(
-            "app.services.availability.set_cached_quantity", AsyncMock()
+        with (
+            patch(
+                "app.services.availability.find_nearby_dcs",
+                AsyncMock(return_value=[_make_entry(dc1, 1.0, 1.5), _make_entry(dc2, 5.0, 7.5)]),
+            ),
+            patch("app.services.availability.get_cached_quantity", mock_get_cached),
+            patch("app.services.availability.set_cached_quantity", AsyncMock()),
         ):
             results, status = await check_availability(
-                lat=34.0522, lng=-118.2437, item_ids=[1], radius_km=15.0,
-                read_db=read_db, redis=redis,
+                lat=34.0522,
+                lng=-118.2437,
+                item_ids=[1],
+                radius_km=15.0,
+                read_db=read_db,
+                redis=redis,
             )
 
         assert status == "PARTIAL"
@@ -152,8 +169,12 @@ class TestCheckAvailabilityCacheHit:
             AsyncMock(return_value=[]),
         ):
             results, status = await check_availability(
-                lat=34.0522, lng=-118.2437, item_ids=[1], radius_km=15.0,
-                read_db=read_db, redis=redis,
+                lat=34.0522,
+                lng=-118.2437,
+                item_ids=[1],
+                radius_km=15.0,
+                read_db=read_db,
+                redis=redis,
             )
 
         assert results == []
@@ -171,16 +192,23 @@ class TestCheckAvailabilityCacheHit:
 
         redis = MagicMock()
 
-        with patch(
-            "app.services.availability.find_nearby_dcs",
-            AsyncMock(return_value=[_make_entry(dc)]),
-        ), patch(
-            "app.services.availability.get_cached_quantity",
-            AsyncMock(return_value=(0, True)),  # qty = 0
+        with (
+            patch(
+                "app.services.availability.find_nearby_dcs",
+                AsyncMock(return_value=[_make_entry(dc)]),
+            ),
+            patch(
+                "app.services.availability.get_cached_quantity",
+                AsyncMock(return_value=(0, True)),  # qty = 0
+            ),
         ):
             results, status = await check_availability(
-                lat=34.0522, lng=-118.2437, item_ids=[1], radius_km=15.0,
-                read_db=read_db, redis=redis,
+                lat=34.0522,
+                lng=-118.2437,
+                item_ids=[1],
+                radius_km=15.0,
+                read_db=read_db,
+                redis=redis,
             )
 
         assert results == []
@@ -197,31 +225,45 @@ class TestCheckAvailabilityCacheHit:
 
         redis = MagicMock()
 
-        with patch(
-            "app.services.availability.find_nearby_dcs",
-            AsyncMock(return_value=[_make_entry(dc, dist_km=40.0, travel_min=60.0)]),
-        ), patch(
-            "app.services.availability.get_cached_quantity",
-            AsyncMock(return_value=(10, True)),
+        with (
+            patch(
+                "app.services.availability.find_nearby_dcs",
+                AsyncMock(return_value=[_make_entry(dc, dist_km=40.0, travel_min=60.0)]),
+            ),
+            patch(
+                "app.services.availability.get_cached_quantity",
+                AsyncMock(return_value=(10, True)),
+            ),
         ):
             results, _ = await check_availability(
-                lat=34.0522, lng=-118.2437, item_ids=[1], radius_km=50.0,
-                read_db=read_db, redis=redis,
+                lat=34.0522,
+                lng=-118.2437,
+                item_ids=[1],
+                radius_km=50.0,
+                read_db=read_db,
+                redis=redis,
             )
 
         assert results[0].can_deliver_in_1h is True
 
         # Now test just over the boundary
-        with patch(
-            "app.services.availability.find_nearby_dcs",
-            AsyncMock(return_value=[_make_entry(dc, dist_km=41.0, travel_min=61.5)]),
-        ), patch(
-            "app.services.availability.get_cached_quantity",
-            AsyncMock(return_value=(10, True)),
+        with (
+            patch(
+                "app.services.availability.find_nearby_dcs",
+                AsyncMock(return_value=[_make_entry(dc, dist_km=41.0, travel_min=61.5)]),
+            ),
+            patch(
+                "app.services.availability.get_cached_quantity",
+                AsyncMock(return_value=(10, True)),
+            ),
         ):
             results, _ = await check_availability(
-                lat=34.0522, lng=-118.2437, item_ids=[1], radius_km=50.0,
-                read_db=read_db, redis=redis,
+                lat=34.0522,
+                lng=-118.2437,
+                item_ids=[1],
+                radius_km=50.0,
+                read_db=read_db,
+                redis=redis,
             )
 
         assert results[0].can_deliver_in_1h is False

@@ -1,8 +1,9 @@
 """
 Tests for the Haversine geo-filtering logic.
 """
+
 import math
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 

@@ -4,6 +4,7 @@ Redis cache-aside helpers for inventory availability.
 Key format: avail:dc:{dc_id}:item:{item_id}
 TTL: 60 seconds (configurable via REDIS_AVAILABILITY_TTL)
 """
+
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -39,5 +40,5 @@ async def flush_availability_cache(redis) -> int:
     """Delete all avail:* keys. Returns the count of deleted keys."""
     keys = await redis.keys("avail:*")
     if keys:
-        return await redis.delete(*keys)
+        return int(await redis.delete(*keys))
     return 0

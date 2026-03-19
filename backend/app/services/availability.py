@@ -1,6 +1,7 @@
 """
 Availability service: cache-aside pattern on top of Haversine DC lookup.
 """
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,7 +33,7 @@ async def check_availability(
 
     # Batch-fetch all requested item metadata (active only)
     items_result = await read_db.execute(
-        select(Item).where(Item.id.in_(item_ids), Item.is_active == True)
+        select(Item).where(Item.id.in_(item_ids), Item.is_active)
     )
     items_map: dict[int, Item] = {item.id: item for item in items_result.scalars().all()}
 

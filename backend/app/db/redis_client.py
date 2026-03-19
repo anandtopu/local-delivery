@@ -1,5 +1,3 @@
-from typing import Optional
-
 import redis.asyncio as aioredis
 import structlog
 
@@ -8,7 +6,7 @@ from app.core.config import get_settings
 logger = structlog.get_logger(__name__)
 settings = get_settings()
 
-_redis_client: Optional[aioredis.Redis] = None
+_redis_client: aioredis.Redis | None = None
 
 
 async def init_redis() -> None:
@@ -29,7 +27,7 @@ async def close_redis() -> None:
     """Called during application shutdown."""
     global _redis_client
     if _redis_client:
-        await _redis_client.aclose()
+        await _redis_client.close()
         _redis_client = None
     logger.info("redis connection closed")
 

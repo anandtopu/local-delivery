@@ -10,6 +10,7 @@ Uses SERIALIZABLE isolation level to prevent overselling under concurrent load:
   6. COMMIT
   7. (best-effort) invalidate Redis cache keys
 """
+
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,8 +25,7 @@ class InsufficientInventoryError(Exception):
         self.available = available
         self.requested = requested
         super().__init__(
-            f"Insufficient inventory for item {item_id}: "
-            f"have {available}, need {requested}"
+            f"Insufficient inventory for item {item_id}: have {available}, need {requested}"
         )
 
 

@@ -95,21 +95,15 @@ class Inventory(Base):
 class Order(Base):
     __tablename__ = "orders"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     customer_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     dc_id: Mapped[int] = mapped_column(ForeignKey("distribution_centers.id"), nullable=False)
-    status: Mapped[str] = mapped_column(
-        String(20), default="CONFIRMED", server_default="CONFIRMED"
-    )
+    status: Mapped[str] = mapped_column(String(20), default="CONFIRMED", server_default="CONFIRMED")
     total_price_cents: Mapped[int] = mapped_column(Integer, default=0)
     placed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=sa_func.now()
     )
-    delivered_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     dc: Mapped["DistributionCenter"] = relationship("DistributionCenter", back_populates="orders")
     order_items: Mapped[list["OrderItem"]] = relationship(

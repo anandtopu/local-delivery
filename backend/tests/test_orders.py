@@ -1,9 +1,9 @@
 """
 Tests for the order placement service.
 """
-import asyncio
+
 import uuid
-from unittest.mock import AsyncMock, MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -42,7 +42,7 @@ class TestPlaceOrder:
     async def test_successful_order(self):
         inv = _make_inventory(dc_id=1, item_id=10, quantity=50)
         item = _make_item(item_id=10, price_cents=299)
-        order = _make_order(dc_id=1, customer_id="cust-1", total=299 * 2)
+        _make_order(dc_id=1, customer_id="cust-1", total=299 * 2)
 
         write_db = MagicMock()
         write_db.execute = AsyncMock()
@@ -59,10 +59,10 @@ class TestPlaceOrder:
         items_result.scalars.return_value.all.return_value = [item]
 
         execute_results = [
-            MagicMock(),   # SET TRANSACTION ISOLATION LEVEL
-            inv_result,    # SELECT FOR UPDATE
+            MagicMock(),  # SET TRANSACTION ISOLATION LEVEL
+            inv_result,  # SELECT FOR UPDATE
             items_result,  # SELECT items
-            MagicMock(),   # UPDATE inventory
+            MagicMock(),  # UPDATE inventory
         ]
         write_db.execute = AsyncMock(side_effect=execute_results)
 
@@ -70,7 +70,7 @@ class TestPlaceOrder:
         redis.delete = AsyncMock()
 
         with patch("app.services.orders.invalidate_dc_item", AsyncMock()):
-            result = await place_order(
+            await place_order(
                 write_db=write_db,
                 redis=redis,
                 customer_id="cust-1",
@@ -86,7 +86,7 @@ class TestPlaceOrder:
 
         write_db = MagicMock()
         execute_results = [
-            MagicMock(),   # SET TRANSACTION
+            MagicMock(),  # SET TRANSACTION
             MagicMock(scalar_one_or_none=MagicMock(return_value=inv)),  # SELECT FOR UPDATE
         ]
         write_db.execute = AsyncMock(side_effect=execute_results)
@@ -146,7 +146,9 @@ class TestPlaceOrder:
         execute_results = [
             MagicMock(),
             MagicMock(scalar_one_or_none=MagicMock(return_value=inv)),
-            MagicMock(scalars=MagicMock(return_value=MagicMock(all=MagicMock(return_value=[item])))),
+            MagicMock(
+                scalars=MagicMock(return_value=MagicMock(all=MagicMock(return_value=[item])))
+            ),
             MagicMock(),
         ]
         write_db.execute = AsyncMock(side_effect=execute_results)
@@ -181,7 +183,9 @@ class TestPlaceOrder:
         execute_results = [
             MagicMock(),
             MagicMock(scalar_one_or_none=MagicMock(return_value=inv)),
-            MagicMock(scalars=MagicMock(return_value=MagicMock(all=MagicMock(return_value=[item])))),
+            MagicMock(
+                scalars=MagicMock(return_value=MagicMock(all=MagicMock(return_value=[item])))
+            ),
             MagicMock(),
         ]
         write_db.execute = AsyncMock(side_effect=execute_results)

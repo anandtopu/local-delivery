@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.postgres import get_read_db, get_write_db
 from app.db.redis_client import get_redis
-from app.models.orm import DistributionCenter, Inventory, Item, Order
+from app.models.orm import DistributionCenter, Item, Order
 from app.models.schemas import StatsResponse
 from app.services.cache import flush_availability_cache
 
@@ -34,7 +34,7 @@ async def trigger_seed(write_db: AsyncSession = Depends(get_write_db)):
         return {"status": "ok", "output": result.stdout[-1000:] if result.stdout else ""}
     except Exception as exc:
         logger.exception("seed failed", error=str(exc))
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.post("/cache/flush")
@@ -48,12 +48,12 @@ async def flush_cache(redis=Depends(get_redis)):
 async def get_stats(read_db: AsyncSession = Depends(get_read_db)):
     """Return aggregate counts from the database."""
     total_dcs_result = await read_db.execute(
-        select(func.count(DistributionCenter.id)).where(DistributionCenter.is_active == True)
+        select(func.count(DistributionCenter.id)).where(DistributionCenter.is_active)
     )
     total_dcs = total_dcs_result.scalar_one() or 0
 
     total_items_result = await read_db.execute(
-        select(func.count(Item.id)).where(Item.is_active == True)
+        select(func.count(Item.id)).where(Item.is_active)
     )
     total_items = total_items_result.scalar_one() or 0
 
@@ -61,15 +61,13 @@ async def get_stats(read_db: AsyncSession = Depends(get_read_db)):
     total_orders = total_orders_result.scalar_one() or 0
 
     orders_today_result = await read_db.execute(
-        select(func.count(Order.id)).where(
-            Order.placed_at >= text("CURRENT_DATE")
-        )
+        select(func.count(Order.id)).where(Order.placed_at >= text("CURRENT_DATE"))
     )
     orders_today = orders_today_result.scalar_one() or 0
 
     regions_result = await read_db.execute(
         select(func.count(func.distinct(DistributionCenter.region_id))).where(
-            DistributionCenter.is_active == True
+            DistributionCenter.is_active
         )
     )
     active_regions = regions_result.scalar_one() or 0

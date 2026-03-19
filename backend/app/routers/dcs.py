@@ -48,16 +48,13 @@ async def get_dc(
     read_db: AsyncSession = Depends(get_read_db),
 ):
     """Get a single DC with its inventory count."""
-    result = await read_db.execute(
-        select(DistributionCenter).where(DistributionCenter.id == dc_id)
-    )
+    result = await read_db.execute(select(DistributionCenter).where(DistributionCenter.id == dc_id))
     dc = result.scalar_one_or_none()
     if dc is None:
         raise HTTPException(status_code=404, detail="Distribution center not found")
 
     count_result = await read_db.execute(
-        select(func.count(Inventory.id))
-        .where(Inventory.dc_id == dc_id, Inventory.quantity > 0)
+        select(func.count(Inventory.id)).where(Inventory.dc_id == dc_id, Inventory.quantity > 0)
     )
     inv_count = count_result.scalar_one() or 0
 

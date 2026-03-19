@@ -1,20 +1,19 @@
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
-
 # ── Distribution Center ───────────────────────────────────────────────────────
+
 
 class DCBase(BaseModel):
     name: str
     lat: float = Field(..., ge=-90, le=90)
     lng: float = Field(..., ge=-180, le=180)
     zipcode: str
-    address: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
+    address: str | None = None
+    city: str | None = None
+    state: str | None = None
     is_active: bool = True
 
 
@@ -33,13 +32,14 @@ class DCResponse(DCBase):
 
 # ── Item ──────────────────────────────────────────────────────────────────────
 
+
 class ItemBase(BaseModel):
     sku: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     category: str
     unit_price_cents: int = Field(..., ge=0)
-    weight_grams: Optional[int] = None
+    weight_grams: int | None = None
     is_active: bool = True
 
 
@@ -56,6 +56,7 @@ class ItemResponse(ItemBase):
 
 # ── Inventory ─────────────────────────────────────────────────────────────────
 
+
 class InventoryResponse(BaseModel):
     id: int
     dc_id: int
@@ -68,6 +69,7 @@ class InventoryResponse(BaseModel):
 
 
 # ── Orders ────────────────────────────────────────────────────────────────────
+
 
 class OrderItemRequest(BaseModel):
     item_id: int
@@ -96,13 +98,14 @@ class OrderResponse(BaseModel):
     status: str
     total_price_cents: int
     placed_at: datetime
-    delivered_at: Optional[datetime] = None
+    delivered_at: datetime | None = None
     order_items: list[OrderItemResponse] = []
 
     model_config = {"from_attributes": True}
 
 
 # ── Availability ──────────────────────────────────────────────────────────────
+
 
 class AvailabilityResult(BaseModel):
     dc_id: int
@@ -126,6 +129,7 @@ class AvailabilityResponse(BaseModel):
 
 # ── Health ────────────────────────────────────────────────────────────────────
 
+
 class HealthResponse(BaseModel):
     status: str
     postgres: str
@@ -133,6 +137,7 @@ class HealthResponse(BaseModel):
 
 
 # ── Admin / Stats ─────────────────────────────────────────────────────────────
+
 
 class StatsResponse(BaseModel):
     total_dcs: int

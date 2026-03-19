@@ -51,7 +51,7 @@ async def create_order(
                 "available": exc.available,
                 "requested": exc.requested,
             },
-        )
+        ) from exc
     except Exception as exc:
         # asyncpg raises this string in the exception message for serialization failures
         if "serializ" in str(exc).lower() or "40001" in str(exc):
@@ -61,9 +61,9 @@ async def create_order(
                     "error": "serialization_failure",
                     "message": "Transaction serialization failure, please retry",
                 },
-            )
+            ) from exc
         logger.exception("unexpected error placing order", error=str(exc))
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from exc
 
 
 @router.get("", response_model=list[OrderResponse])
@@ -90,9 +90,7 @@ async def get_order(
 ):
     """Retrieve a single order by UUID."""
     result = await read_db.execute(
-        select(Order)
-        .options(selectinload(Order.order_items))
-        .where(Order.id == order_id)
+        select(Order).options(selectinload(Order.order_items)).where(Order.id == order_id)
     )
     order = result.scalar_one_or_none()
     if order is None:

@@ -50,7 +50,7 @@ async def find_nearby_dcs(
 
     result = await db.execute(
         select(DistributionCenter).where(
-            DistributionCenter.is_active == True,
+            DistributionCenter.is_active,
             DistributionCenter.lat.between(lat - lat_offset, lat + lat_offset),
             DistributionCenter.lng.between(lng - lng_offset, lng + lng_offset),
         )
