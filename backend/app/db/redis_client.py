@@ -19,6 +19,7 @@ async def init_redis() -> None:
         socket_connect_timeout=5,
         socket_timeout=5,
     )
+    assert _redis_client is not None
     await _redis_client.ping()
     logger.info("redis connected", url=settings.REDIS_URL)
 
